@@ -52,8 +52,8 @@
     </build>
 
     <properties>
-        <sonar.projectKey>dogtagpki_jss</sonar.projectKey>
-        <sonar.organization>dogtagpki</sonar.organization>
+        <sonar.projectKey>fmarco76_jss</sonar.projectKey>
+        <sonar.organization>fmarco76</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
