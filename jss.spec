@@ -9,6 +9,8 @@ Name:           jss
 %global         minor_version 3
 %global         update_version 0
 
+
+
 # Downstream release number:
 # - development/stabilization (unsupported): 0.<n> where n >= 1
 # - GA/update (supported): <n> where n >= 1
