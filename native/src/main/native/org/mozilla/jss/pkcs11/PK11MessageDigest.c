@@ -60,6 +60,7 @@ Java_org_mozilla_jss_pkcs11_PK11MessageDigest_initHMAC
     bool freeNewKey = true;
 
     mech = JSS_getPK11MechFromAlg(env, algObj);
+    printf("Found merch %lu\n", mech);
     PR_ASSERT( mech != CKM_INVALID_MECHANISM ); /* we checked already in Java */
 
     if( JSS_PK11_getSymKeyPtr(env, keyObj, &origKey) != PR_SUCCESS ) {

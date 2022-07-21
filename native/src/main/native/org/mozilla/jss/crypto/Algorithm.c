@@ -178,6 +178,7 @@ JSS_AlgInfo JSS_AlgTable[NUM_ALGS] = {
 /* 81 */    {SEC_OID_AES_128_KEY_WRAP_KWP, SEC_OID_TAG},
 /* 82 */    {SEC_OID_AES_192_KEY_WRAP_KWP, SEC_OID_TAG},
 /* 83 */    {SEC_OID_AES_256_KEY_WRAP_KWP, SEC_OID_TAG},
+/* 84 */    {CKM_NSS_PKCS12_PBE_SHA256_HMAC_KEY_GEN, PK11_MECH},
 
 
 /* REMEMBER TO UPDATE NUM_ALGS!!! (in Algorithm.h) */
@@ -234,6 +235,7 @@ JSS_getPK11MechFromAlg(JNIEnv *env, jobject alg)
     if( info.type == PK11_MECH ) {
         return (CK_MECHANISM_TYPE) info.val;
     } else {
+    	printf("Check the mech with val: %lu\n",info.val);
         PR_ASSERT( info.type == SEC_OID_TAG );
         return PK11_AlgtagToMechanism( (SECOidTag) info.val);
     }
@@ -342,6 +344,7 @@ getAlgInfo(JNIEnv *env, jobject alg, JSS_AlgInfo *info)
         goto finish;
     }
     *info = JSS_AlgTable[index];
+    printf("Index of algo table is %d\n",index);
     status = PR_SUCCESS;
 
 finish:

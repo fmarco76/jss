@@ -240,6 +240,20 @@ constructSHA1PBAKey(JNIEnv *env, PK11SlotInfo *slot, SECItem *pwitem, SECItem *s
 finish:
     return key;
 }
+static PRBool
+sec_pkcs5_is_algorithm_v2_pkcs5_algorithm(SECOidTag algorithm)
+{
+    switch (algorithm) {
+        case SEC_OID_PKCS5_PBES2:
+        case SEC_OID_PKCS5_PBMAC1:
+        case SEC_OID_PKCS5_PBKDF2:
+            return PR_TRUE;
+        default:
+            break;
+    }
+
+    return PR_FALSE;
+}
 
 /***********************************************************************
  *
@@ -251,6 +265,8 @@ Java_org_mozilla_jss_pkcs11_PK11KeyGenerator_generatePBE(
     JNIEnv *env, jclass clazz, jobject token, jobject alg, jobject encAlg,
     jbyteArray passBA, jbyteArray saltBA, jint iterationCount)
 {
+	printf("Start the PBE\n");
+
     PK11SlotInfo *slot=NULL;
     PK11SymKey *skey=NULL;
     SECOidTag oidTag;
@@ -267,12 +283,14 @@ Java_org_mozilla_jss_pkcs11_PK11KeyGenerator_generatePBE(
     if( JSS_PK11_getTokenSlotPtr(env, token, &slot) != PR_SUCCESS) {
         goto finish;
     }
+    printf("Slot OK\n");
 
     /* convert salt to SECItem */
     salt = JSS_ByteArrayToSECItem(env, saltBA);
     if(salt == NULL) {
         goto finish;
     }
+    printf("Salt OK\n");
 
     /* convert password to SECItem */
     pwitem = JSS_ByteArrayToSECItem(env, passBA);
@@ -280,14 +298,15 @@ Java_org_mozilla_jss_pkcs11_PK11KeyGenerator_generatePBE(
         ASSERT_OUTOFMEM(env);
         goto finish;
     }
-    /* print_secitem(pwitem); */
+    print_secitem(pwitem);
 
     mech = JSS_getPK11MechFromAlg(env, alg);
+
+    printf("Identified mech: %lx\n", mech);
 
     if( mech == CKM_PBA_SHA1_WITH_SHA1_HMAC ) {
 
         /* special case, construct key by hand. Bug #336587 */
-
         skey = constructSHA1PBAKey(env, slot, pwitem, salt, iterationCount);
         if( skey==NULL ) {
             /* exception was thrown */
@@ -299,26 +318,37 @@ Java_org_mozilla_jss_pkcs11_PK11KeyGenerator_generatePBE(
         /* get the algorithm info */
         oidTag = JSS_getOidTagFromAlg(env, alg);
         PR_ASSERT(oidTag != SEC_OID_UNKNOWN);
-
+        printf("pbeAlgTag: %d\n",oidTag);
         SECOidTag encAlgOidTag = JSS_getOidTagFromAlg(env, encAlg);
+        printf("cipherAlgTag: %d\n",encAlgOidTag);
         PR_ASSERT(encAlgOidTag != SEC_OID_UNKNOWN);
-
+        printf("Ciao1\n");
+        printf("Iterations %d\n", iterationCount);
         /* create algid */
         algid = PK11_CreatePBEV2AlgorithmID(
-            oidTag,
-            encAlgOidTag,
-            SEC_OID_HMAC_SHA1,
+        		SEC_OID_PKCS5_PBES2,
+				SEC_OID_AES_256_CBC,
+				SEC_OID_HMAC_SHA256,
             0,
             iterationCount,
             salt);
-
+        printf("Ciao2\n");
+        printf("The algo has type %u, length %u, and data %s\n", algid->algorithm.type, algid->algorithm.len, algid->algorithm.data);
         if( algid == NULL ) {
             JSS_throwMsg(env, TOKEN_EXCEPTION,
                     "Unable to process PBE parameters");
             goto finish;
         }
 
+
         /* generate the key */
+        PRBool v = sec_pkcs5_is_algorithm_v2_pkcs5_algorithm(SECOID_GetAlgorithmTag(algid));
+        printf("Is PKCS5v2 %b\n", v);
+        PLArenaPool *localArena = PORT_NewArena(SEC_ASN1_DEFAULT_ARENA_SIZE);
+        if(!localArena){
+        	printf("Local");
+        }
+
         skey = PK11_PBEKeyGen(slot, algid, pwitem, PR_FALSE /*faulty3DES*/,
                         NULL /*wincx*/);
         if( skey == NULL ) {
@@ -346,7 +376,6 @@ finish:
     }
     return keyObj;
 }
-
 
 /***********************************************************************
  *

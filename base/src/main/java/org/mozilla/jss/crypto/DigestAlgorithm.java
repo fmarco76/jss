@@ -76,6 +76,7 @@ public class DigestAlgorithm extends Algorithm {
     public static final DigestAlgorithm SHA256 = new DigestAlgorithm
         (SEC_OID_SHA256, "SHA-256", OBJECT_IDENTIFIER.HASH_ALGORITHM.subBranch(1), 32);
 
+
     /*
     * The SHA-384 digest Algorithm from FIPS 180-2
     */

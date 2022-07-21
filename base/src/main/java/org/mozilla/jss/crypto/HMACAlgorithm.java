@@ -61,6 +61,9 @@ public class HMACAlgorithm extends DigestAlgorithm {
     public static final HMACAlgorithm SHA256 = new HMACAlgorithm
         (CKM_SHA256_HMAC, "SHA-256-HMAC",
              OBJECT_IDENTIFIER.RSA_DIGEST.subBranch(9), 32);
+    public static final HMACAlgorithm SHA2562 = new HMACAlgorithm
+            (SEC_OID_HMAC_SHA256, "SHA-256-HMAC",
+                 OBJECT_IDENTIFIER.RSA_DIGEST.subBranch(9), 32);
 
     public static final HMACAlgorithm SHA384 = new HMACAlgorithm
         (CKM_SHA384_HMAC, "SHA-384-HMAC",

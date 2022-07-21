@@ -168,6 +168,8 @@ public final class PK11KeyGenerator implements KeyGenerator {
         boolean is_pbe = paramClasses.length == 1 && paramClasses[0].equals(PBEKeyGenParams.class);
         boolean is_kbkdf = paramClasses.length == 1 && parameters instanceof KBKDFParameterSpec;
 
+        System.out.println("Is pbe " + is_pbe + " or is kbkdf " + is_kbkdf);
+
         if (is_pbe) {
             if(parameters==null || !(parameters instanceof PBEKeyGenParams)) {
                 throw new IllegalStateException(

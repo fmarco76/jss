@@ -142,6 +142,14 @@ public class KeyGenAlgorithm extends Algorithm {
             null,
             null);
 
+    public static final KeyGenAlgorithm SHA256_MARCO = new KeyGenAlgorithm(
+//            SEC_OID_AES_256_CBC,
+            SEC_OID_PKCS5_PBES2,
+            "PBE/SHA256/HMAC",
+            new FixedKeyStrengthValidator(32),
+            null,
+            PBEKeyGenParams.class);
+
     public static final KeyGenAlgorithm SHA384_HMAC = new KeyGenAlgorithm(
             CKM_SHA384_HMAC,
             "SHA384/HMAC",

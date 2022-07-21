@@ -29,6 +29,7 @@ import org.mozilla.jss.asn1.Tag;
 import org.mozilla.jss.crypto.JSSSecureRandom;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.DigestInfo;
 import org.mozilla.jss.pkix.cert.Certificate;
@@ -153,7 +154,16 @@ public class PFX implements ASN1Value {
             MacData testMac = new MacData(password,
                     macData.getMacSalt().toByteArray(),
                     macData.getMacIterationCount().intValue(),
-                    encodedAuthSafes);
+                    encodedAuthSafes,
+                    macData.getMac().getDigestAlgorithm());
+
+            System.out.println("TestMac alg: "+testMac.getMac().getDigestAlgorithm().getOID().toDottedString());
+            System.out.println("OriginalMac alg: "+macData.getMac().getDigestAlgorithm().getOID().toDottedString());
+            System.out.println("Original Mac data: " + Utils.HexEncode(macDataMac.getDigest().toByteArray()));
+            System.out.println("Computed Mac data: " + Utils.HexEncode(testMac.getMac().getDigest().toByteArray()));
+
+            System.out.println("Original Mac salt: " + Utils.HexEncode(macData.getMacSalt().toByteArray()));
+            System.out.println("Computed Mac salt: " + Utils.HexEncode(testMac.getMacSalt().toByteArray()));
 
             if (testMac.getMac().equals(macDataMac)) {
                 return true;
@@ -169,6 +179,7 @@ public class PFX implements ASN1Value {
             return false;
 
         } catch (TokenException e) {
+            e.printStackTrace();
             reason.append("A TokenException occurred");
             return false;
 
