@@ -12,6 +12,7 @@ resources:
     image: ubuntu:rolling
     options: '--name runner -v /usr/bin/docker:/usr/bin/docker:ro'
 
+
 jobs:
 - job: BuildTest
   pool:
