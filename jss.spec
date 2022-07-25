@@ -2,6 +2,8 @@
 Name:           jss
 ################################################################################
 
+
+
 %global         product_id dogtag-jss
 
 # Upstream version number:
