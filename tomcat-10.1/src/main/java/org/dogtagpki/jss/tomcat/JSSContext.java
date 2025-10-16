@@ -2,6 +2,8 @@ package org.dogtagpki.jss.tomcat;
 
 import java.security.KeyManagementException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -19,15 +21,12 @@ public class JSSContext implements org.apache.tomcat.util.net.SSLContext {
     public static Logger logger = LoggerFactory.getLogger(JSSContext.class);
 
     private javax.net.ssl.SSLContext ctx;
-    private String alias;
+    private List<String> aliases;
 
     private JSSKeyManager jkm;
     private JSSTrustManager jtm;
 
-    public JSSContext(String alias) {
-        logger.debug("JSSContext(" + alias + ")");
-        this.alias = alias;
-
+    public JSSContext() {
         /* These KeyManagers and TrustManagers aren't used with the SSLEngine;
          * they're only used to implement certain function calls below. */
         try {
@@ -39,6 +38,19 @@ public class JSSContext implements org.apache.tomcat.util.net.SSLContext {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    public JSSContext(String alias) {
+        this();
+        logger.debug("JSSContext(" + alias + ")");
+        aliases = new ArrayList<>();
+        aliases.add(alias);
+    }
+
+    public JSSContext(List<String> aliases) {
+        this();
+        logger.debug("JSSContext(" + String.join(", ", aliases) + ")");
+        this.aliases = aliases;
     }
 
     @Override
@@ -67,7 +79,7 @@ public class JSSContext implements org.apache.tomcat.util.net.SSLContext {
 
         if (eng instanceof JSSEngine) {
             JSSEngine j_eng = (JSSEngine) eng;
-            j_eng.setCertFromAlias(alias);
+            j_eng.setCertFromAliases(aliases);
             if(instance != null) {
                 j_eng.setListeners(instance.getSocketListeners());
             }
